@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/AditiAjitSalvi/DO_Practical_4.gt'
+                git branch: 'main', url: 'https://github.com/AditiAjitSalvi/DO_Practical_4.git'
             }
         }
 
