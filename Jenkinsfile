@@ -23,14 +23,16 @@ pipeline {
         stage('Run App') {
             steps {
                 echo '🚀 Starting Node.js app...'
-                // Stop any previous instance
-                bat 'taskkill /F /IM node.exe || echo No node process found'
-                // Start the app and check if it's running
+                // Check if node is running
+                bat 'tasklist /FI "IMAGENAME eq node.exe" | find ":" || echo No node process found'
+                // Start app in background
                 bat '''
-                echo "Starting Node.js app..."
-                start /B node index.js > output.log 2>&1
-                timeout /t 5 /nobreak
-                echo "Node.js app started."
+                if not exist "node.exe" (
+                    echo "Starting Node.js app..."
+                    start /B node index.js > output.log 2>&1
+                ) else (
+                    echo "Node.js app is already running"
+                )
                 '''
             }
         }
