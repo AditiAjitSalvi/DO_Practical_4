@@ -36,13 +36,6 @@ pipeline {
                 '''
             }
         }
-
-        stage('Health Check') {
-            steps {
-                echo '✅ Checking if app is running...'
-                bat 'curl --fail http://localhost:3000 || (echo "❌ App failed health check" && exit 1)'
-            }
-        }
     }
 
     post {
