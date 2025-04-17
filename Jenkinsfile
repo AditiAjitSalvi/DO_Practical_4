@@ -1,5 +1,5 @@
 pipeline {
-    agent any 
+    agent any
 
     environment {
         NODE_ENV = 'production'
@@ -8,91 +8,47 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                echo 'Cloning GitHub repository...'
+                echo '📥 Cloning repository...'
                 git branch: 'main', url: 'https://github.com/AditiAjitSalvi/DO_Practical_4.git'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                script {
-                    if (isUnix()) {
-                        echo 'Installing npm packages on Linux...'
-                        sh 'npm install'
-                    } else {
-                        echo 'Installing npm packages on Windows...'
-                        bat 'npm install'
-                    }
-                }
+                echo '📦 Installing dependencies...'
+                sh 'npm install'
             }
         }
 
-        stage('Build (Optional)') {
+        stage('Run App') {
             steps {
-                script {
-                    if (isUnix()) {
-                        echo 'Running build step (Linux)...'
-                        // Uncomment if you have a build step
-                        // sh 'npm run build'
-                    } else {
-                        echo 'Running build step (Windows)...'
-                        bat 'npm run build'
-                    }
-                }
-            }
-        }
-
-        stage('Deploy Application') {
-            steps {
-                script {
-                    if (isUnix()) {
-                        echo 'Deploying Node.js app on Linux...'
-
-                        // Kill running app
-                        sh 'pkill node || true'
-
-                        // Start app
-                        sh 'nohup node app.js > output.log 2>&1 &'
-                        
-                        // PM2 alternative (commented)
-                        // sh 'npm install -g pm2'
-                        // sh 'pm2 stop my-app || true'
-                        // sh 'pm2 start app.js --name my-app'
-
-                    } else {
-                        echo 'Deploying Node.js app on Windows...'
-                        bat 'npm run deploy'
-                    }
-                }
+                echo '🚀 Starting Node.js app...'
+                // Stop any previous instance
+                sh 'pkill node || true'
+                // Start app in background
+                sh 'nohup node index.js > output.log 2>&1 &'
             }
         }
 
         stage('Health Check') {
             steps {
-                script {
-                    if (isUnix()) {
-                        echo 'Performing health check on Linux...'
-                        sh 'curl --fail http://localhost:3000 || (echo "App failed health check." && exit 1)'
-                    } else {
-                        echo 'Performing health check on Windows...'
-                        bat 'curl http://localhost:3000 || exit /b 1'
-                    }
-                }
+                echo '✅ Checking if app is running...'
+                sh 'curl --fail http://localhost:3000 || (echo "❌ App failed health check" && exit 1)'
             }
         }
     }
 
     post {
         success {
-            echo '✅ App deployed successfully!'
+            echo '🎉 Deployment successful!'
             archiveArtifacts artifacts: 'output.log', onlyIfSuccessful: true
         }
         failure {
-            echo '❌ Deployment failed.'
+            echo '🚨 Deployment failed!'
         }
         always {
-            echo '📦 Archiving deployment logs...'
-            archiveArtifacts artifacts: '**/logs/**', allowEmptyArchive: true
+            echo '🗃 Archiving logs...'
+            archiveArtifacts artifacts: 'output.log', allowEmptyArchive: true
         }
     }
 }
