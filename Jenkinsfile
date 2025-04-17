@@ -25,8 +25,13 @@ pipeline {
                 echo '🚀 Starting Node.js app...'
                 // Stop any previous instance
                 bat 'taskkill /F /IM node.exe || echo No node process found'
-                // Start app in background
-                bat 'start /B node index.js > output.log 2>&1'
+                // Start the app and check if it's running
+                bat '''
+                echo "Starting Node.js app..."
+                start /B node index.js > output.log 2>&1
+                timeout /t 5 /nobreak
+                echo "Node.js app started."
+                '''
             }
         }
 
